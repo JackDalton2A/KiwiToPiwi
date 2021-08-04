@@ -45,10 +45,21 @@ namespace KiwiToPiwi
 
         public void WriteDictionaryToFile()
         {
-            var fullPathName = _destinationPath + NameOfFilePair + ".txt";
-            Directory.CreateDirectory(Path.GetDirectoryName(fullPathName) ?? "ShitHappens");
-            File.WriteAllLines(fullPathName, TextDic.Select(x => "0x" + x.Key.ToString("X8") + "\t" + Regex.Replace(x.Value, @"\r\n?|\n", "( \\n )") ));
+            if (TextDic.Count > 0)
+            {
+                var fullPathName = _destinationPath + NameOfFilePair + ".txt";
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPathName) ?? "ShitHappens");
+                File.WriteAllLines(fullPathName, TextDic.Select(x => "0x" + x.Key.ToString("X8") + "\t" + Regex.Replace(x.Value, @"\r\n?|\n", "( \\n )") ));
+            }
         }
+
+        public string this[uint index] // indexer declaration
+        {
+            get => TextDic[index];
+            //set => TextDic[index] = value;
+        }
+
+
 
         protected StringData(string projectPath, string destinationPath)
         {

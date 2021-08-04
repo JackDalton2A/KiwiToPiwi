@@ -32,6 +32,7 @@ using System.Data;
 using System.Formats.Asn1;
 using System.IO;
 using System.IO.Compression;
+using KiwiToPiwi.KeyValueDb;
 using PetersDllWrapper;
 
 namespace KiwiToPiwi
@@ -48,9 +49,11 @@ namespace KiwiToPiwi
     {
         static void Main(string[] args)
         {
-            var outcomePath = @"D:\DirtyDevFolder\WithOutBuiltInText\";
-            var targetPath = @"D:\xyz\";
+            var outcomePath = @"H:\DirtyDevFolder\DataNoTextDb\";
+            var targetPath = @"H:\DirtyDevFolder\dummyProjects\rtDataNoTextDb\";
 
+            //var outcomePath = @"H:\DirtyDevFolder\DataWithTextDb\";
+            //var targetPath = @"H:\DirtyDevFolder\dummyProjects\rtDataWithTextDb\";
 
             Console.WriteLine("Hello P-Car lovers!");
 
@@ -66,10 +69,13 @@ namespace KiwiToPiwi
 
             foreach (FileInfo dbFileToOpen in directorySelected.GetFiles("*.key"))
             {
-                var t = new SharedDataKvs(dbFileToOpen, outcomePath);
-                t.WriteDictionaryToFile();
+                var t = new SharedDataAsRawData(dbFileToOpen, outcomePath);
+                t.WriteRefToSerializedDbItemDictionaryToFile();
+                t.DeserializeDbItems(ascData,unicodeData);
+                t.WriteDeserializeDbItemsToFile();
+
             }
-           
+
         }
     }
 }
