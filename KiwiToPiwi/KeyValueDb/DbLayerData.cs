@@ -49,28 +49,65 @@ namespace KiwiToPiwi.KeyValueDb
             uint id = 0;
             try
             {
-                while ((id = br.ReadUInt32()) != 0x100)
-            {
-                if (id == 0)
-                    continue;
-                if (id == 0x105 )
+                var fiveItems = 0;
+                do
                 {
-                    _dbKeyFileRefs.Add("-------------------");
-                    br.ReadBytes(24);
-                    continue;
+                    id = br.ReadUInt32();
+                    if (id != 0)
+                        if (IsInlineText(id))
+                        {
+                            var textSize = id & 0x7FFF_FFFF;
+
+                            _dbKeyFileRefs.Add(Encoding.ASCII.GetString(br.ReadBytes((int) textSize)));
+                        }
+                        else
+                        {
+                            _dbKeyFileRefs.Add(UStringData[id]);
+                        }
+
+                    fiveItems++;
+                } while (fiveItems < 5);
+
+                var magic = br.ReadUInt16();
+                switch (magic)
+                {
+                    case 0x0101:
+                    {
+                        break;
+                    }
+                    case 0x0105:
+                    {
+                        var magic2 = br.ReadUInt16();
+                        _dbKeyFileRefs.Add("----------105---------");
+                        fiveItems = 0;
+                        while (fiveItems < 5)
+                        {
+                            id = br.ReadUInt32();
+                            if ((id != 0)  && (id !=2))
+                                if (IsInlineText(id))
+                                {
+                                    var textSize = id & 0x7FFF_FFFF;
+
+                                    _dbKeyFileRefs.Add(Encoding.ASCII.GetString(br.ReadBytes((int) textSize)));
+                                }
+                                else
+                                {
+                                    _dbKeyFileRefs.Add(AStringData[id]);
+                                }
+
+                            fiveItems++;
+                        }
+                        var magic3 = br.ReadUInt16();
+                            break;
+                    }
+
+                    default:
+                    {
+                        Console.WriteLine(magic.ToString("X4"));
+                        break;
+                    }
                 }
 
-                if (IsInlineText(id))
-                {
-                    var textSize = id & 0x7FFF_FFFF;
-
-                    _dbKeyFileRefs.Add(Encoding.ASCII.GetString(br.ReadBytes((int) textSize)));
-                }
-                else
-                {
-                    _dbKeyFileRefs.Add(AStringData[id]);
-                }
-            }
             }
             catch (EndOfStreamException e)
             {

@@ -84,26 +84,18 @@ namespace KiwiToPiwi
             if (File.Exists(fullPathName))
                 using (var reader = new BinaryReader(File.Open(fullPathName, FileMode.Open)))
                 {
+                    var sizeOfPairs = reader.ReadUInt32();
                     while (reader.BaseStream.Position != reader.BaseStream.Length)
-                        try
-                        {
-                            keyToAddressDic.Add(
-                                reader.ReadUInt32(),//Id
-                                reader.ReadUInt32() //Address in data file 
-                            );
-                        }
-                        catch (EndOfStreamException e)
-                        {
-                            if (reader.BaseStream.Position == reader.BaseStream.Length)
-                            {
-                                Debug.WriteLine("This index file has a key at the end without an address assignment!");
-                                Debug.WriteLine("Maybe a bug or I didn't understand something.");
-                            }
-                            else
-                            {
-                                throw;
-                            }
-                        }
+                    {
+                        var dbIndex = reader.ReadUInt32(); //Address in data file 
+                        var textId = reader.ReadUInt32(); //Id
+                        keyToAddressDic.Add(textId, dbIndex);
+                    }
+
+                    if (sizeOfPairs != keyToAddressDic.Count)
+                    {
+                        throw new InvalidOperationException(nameof(sizeOfPairs) + " != " + nameof(keyToAddressDic.Count));
+                    }
                 }
 
             //data file
